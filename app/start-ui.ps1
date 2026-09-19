@@ -50,7 +50,6 @@ $server = Join-Path $root "llama.cpp\llama-server.exe"
 $model = Join-Path $modelsRoot "llm\qwen3.5-9b-GGUF\Qwen_Qwen3.5-9B-Q5_K_M.gguf"
 $vadModel = Join-Path $modelsRoot "vad\silero-vad"
 $sttModel = Join-Path $modelsRoot "stt\whisper-large-v3-turbo"
-$ttsModel = Join-Path $modelsRoot "tts\qwen3-tts-customvoice"
 $llmProviderFile = Join-Path $root "heygem-data\llm-provider.json"
 $avatarStateFile = Join-Path $root "heygem-data\state.json"
 $liveactCloudConfigFile = Join-Path $root "config\liveact-cloud.json"
@@ -364,18 +363,15 @@ $requiredFiles = @(
     $sttModel,
     (Join-Path $root "ui\server.py")
 )
-# Qwen3-TTS 的模型目录只有真用它时才需要存在。我们换成了 OmniVoice（跑在旁挂
-# 进程里，模型在 AI-Girlfriend-Models	ts\omnivoice），那 4.2GB 的 qwen3-tts
-# 就删掉了；这里跟着按实际引擎判断，否则启动会卡在"缺少界面运行文件"。
-# 判断依据取自 pipeline 配置里的 tts 字段，和管线实际分发用的是同一个值。
-$ttsEngine = "qwen3"
+# 当前整合包固定使用由 start-ours.ps1 启动的 OmniVoice 服务。
+# 提前校验配置，避免旧配置悄悄退回另一套 TTS。
 try {
     $ttsEngine = [string](([System.IO.File]::ReadAllText($pipelineConfig, [System.Text.Encoding]::UTF8) | ConvertFrom-Json).tts)
 } catch {
-    Write-Host "  读不出 pipeline 配置里的 tts，按 qwen3 处理" -ForegroundColor Yellow
+    throw "无法读取 pipeline 配置里的 tts：$($_.Exception.Message)"
 }
-if ($ttsEngine -eq "qwen3") {
-    $requiredFiles += $ttsModel
+if ($ttsEngine -ne "omnivoice") {
+    throw "当前整合包只启用 OmniVoice，但 pipeline 配置为：$ttsEngine"
 }
 if ($llmProviderMode -eq "local") {
     $requiredFiles += @($server, $model)
@@ -437,7 +433,6 @@ $pipelineSettings | Add-Member -NotePropertyName "init_chat_prompt" `
     -NotePropertyValue ([string]$characterSettings.system_prompt) -Force
 $pipelineSettings.vad_model_repo = $vadModel
 $pipelineSettings.stt_model_name = $sttModel
-$pipelineSettings.qwen3_tts_model_name = $ttsModel
 $pipelineSettings.ws_port = $RealtimePort
 $pipelineSettings.responses_api_api_key = "local-gateway"
 $pipelineSettings.responses_api_base_url = "http://127.0.0.1:$UiPort/api/llm/v1"
@@ -474,7 +469,7 @@ if ($heygemEnabled) {
         $probe.Connect("127.0.0.1", $HeyGemPort)
         $probe.Close()
         $heygemExternal = $true
-        Write-Host ("检测到 {0} 端口已有数字人引擎，跳过 Docker 启动流程。" -f $HeyGemPort) -ForegroundColor Green
+        Write-Host ("检测到 {0} 端口已有数字人引擎，直接复用该服务。" -f $HeyGemPort) -ForegroundColor Green
     } catch {
         $heygemExternal = $false
     }
@@ -555,7 +550,7 @@ try {
         foreach ($service in $staleLocalLlm) {
             Stop-ProcessTreeById -ProcessId $service.ProcessId
         }
-        Write-Host "上次选择三方 API，本次不加载本地 Qwen。"
+        Write-Host "本次使用外部语言模型，经 DSH Bridge 转发。"
     }
 
     $uiProcess = Start-Process `
@@ -579,7 +574,7 @@ try {
     }
 
     if (-not (Test-TcpPort $RealtimePort)) {
-        Write-Host "正在加载 Whisper 与 Qwen3-TTS……"
+        Write-Host "正在加载 Whisper，并连接 OmniVoice……"
         $pipelineProcess = Start-Process `
             -FilePath $python `
             -ArgumentList @("-m", $pipelineModule, $runtimePipelineConfig) `

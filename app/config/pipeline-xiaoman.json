@@ -12,7 +12,7 @@
   "stt_device": "cuda",
   "stt_torch_dtype": "float16",
   "language": "zh",
-  "model_name": "Qwen/Qwen3.5-9B-GGUF",
+  "model_name": "dsh",
   "chat_size": 30,
   "stream_batch_sentences": 1,
   "enable_lang_prompt": true,
@@ -24,17 +24,5 @@
   "responses_api_disable_thinking": true,
   "responses_api_reasoning_effort": null,
   "responses_api_gen_max_tokens": 48,
-  "responses_api_max_output_characters": 48,
-  "qwen3_tts_model_name": "../AI-Girlfriend-Models/tts/qwen3-tts-customvoice",
-  "qwen3_tts_device": "cuda",
-  "qwen3_tts_dtype": "bfloat16",
-  "qwen3_tts_attn_implementation": "sdpa",
-  "qwen3_tts_backend": "torch",
-  "qwen3_tts_speaker": "Serena",
-  "qwen3_tts_instruct": "19岁年轻女孩儿，温柔、自然、亲切，可爱的台湾腔",
-  "qwen3_tts_language": "Chinese",
-  "qwen3_tts_gen_do_sample": false,
-  "qwen3_tts_non_streaming_mode": false,
-  "qwen3_tts_streaming_chunk_size": 4,
-  "qwen3_tts_max_new_tokens": 512
+  "responses_api_max_output_characters": 48
 }
