@@ -8,7 +8,7 @@
   "bundled_models": [
     "OmniVoice-0.2.1（声音克隆 TTS）",
     "Whisper-large-v3-turbo（语音识别）",
-    "Silero-VAD-v5（断句）",
+    "Silero-VAD-v6.2.1（断句）",
     "Duix/HeyGem 256v1（数字人口型，在 engine/ 镜像里）"
   ],
   "language_model": "外部 API（GLM / Kimi / DeepSeek），经 DSH 桥接，带跨重启长期记忆",

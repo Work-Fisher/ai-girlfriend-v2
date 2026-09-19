@@ -9,8 +9,9 @@ Runtime-supported values in `s2s_pipeline.py`:
 - `pocket` → `pocket_tts_handler.py`
 - `kokoro` → `kokoro_handler.py`
 - `qwen3` → `qwen3_tts_handler.py`
+- `omnivoice` → `omnivoice_handler.py`
 
-Deprecated TTS implementations, including MeloTTS, live in [`../../../archive/TTS`](../../../archive/TTS) and are no longer wired into `s2s_pipeline.py`.
+Deprecated TTS implementations, including MeloTTS, are no longer included in this source snapshot or wired into `s2s_pipeline.py`.
 
 ## Usage
 

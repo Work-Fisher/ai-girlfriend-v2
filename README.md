@@ -48,6 +48,8 @@ flowchart LR
 
 > GitHub 仓库只保存源码、脚本和文档。约 15.6 GB 的 Python runtime、模型与 WSL rootfs 不进入 Git 历史；使用 Windows 整合包时，请确认这些目录已经随包提供。
 
+> **源码仓库本身不是完整一键包。** 四套模型可以按文档分别下载，但固定 Python、FFmpeg、依赖层和 DSH 运行组件仍须来自同版本整合包。下面的“双击开始”流程只适用于文件齐全的 Windows 整合包。
+
 ### 先体验纯语音
 
 1. 将整合包完整解压到纯英文、无空格路径，例如 `D:\AI-Girlfriend`。
@@ -63,7 +65,7 @@ flowchart LR
 4. Windows 提示重启时，重启电脑，再次双击 `首次安装.cmd`。
 5. 看到“数字人引擎就位”后，双击 `一键启动.cmd`。
 
-完整的分支流程、硬件要求和故障处理见 [Windows 安装指南](docs/INSTALL.md)。
+完整的分支流程、硬件要求和故障处理见 [Windows 安装指南](docs/INSTALL.md)。如果拿到的是 GitHub 源码而不是完整整合包，请先按 [模型与数字人资源下载](docs/MODELS.md) 准备四套模型；数字人模式还需要单独的 WSL2 rootfs。
 
 ## 展示案例
 
@@ -124,8 +126,17 @@ runtime/python311/python.exe -m unittest discover `
 - “移出记忆”会从长期事实库和检索结果中抑制内容，但不会删除原始 DSH 会话档案。
 - 发布整合包前必须单独核对每个模型、数字人引擎和默认媒体素材的再分发许可。
 
-详见 [安全说明](SECURITY.md) 和 [第三方组件说明](THIRD_PARTY_NOTICES.md)。
+详见 [模型下载](docs/MODELS.md)、[安全说明](SECURITY.md) 和 [第三方组件说明](THIRD_PARTY_NOTICES.md)。
+
+## 致谢与来源
+
+本项目在 Windows 整合、浏览器 UI、原始启动脚本和数字人接入方案上，参考并修改了 `penposs` 作者公开分享的“开源赛博女友”项目。感谢作者提供原始方案和整合资料：
+
+- [原作者的飞书资料页](https://e5fklqa5fj.feishu.cn/wiki/ZPFIwAWzfiDilAkcHk0czuiRnhf)
+- [penposs 的 GitHub](https://github.com/penposs)
+
+当前仓库在该方案基础上增加了 DSH 长期记忆、语义历史检索、记忆管理、关系进度、两种输出模式和新版首次安装流程。项目维护者已确认引用部分来自原作者公开发布的开源版本；来源页没有附带可供本仓库复述的统一许可证名称，因此这里保留原作者署名与来源，不擅自把它标成 MIT、Apache-2.0 等具体许可证。第三方代码、模型和二进制仍分别遵循各自上游条款。
 
 ## License
 
-本仓库包含多个来源与不同许可边界，目前不对整个仓库声明单一许可证。Hugging Face `speech-to-speech` 保留其 Apache-2.0 许可证；其他第三方组件见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。在确认 UI 源码来源、Duix/HeyGem、OmniVoice 模型和默认媒体素材的授权前，请勿公开源码或把二进制整合包作为可自由再分发内容发布。
+本仓库包含多个来源与不同许可边界，目前不对整个仓库声明单一许可证。Hugging Face `speech-to-speech` 保留其 Apache-2.0 许可证；OmniVoice 预训练权重是 CC-BY-NC，仅限非商业用途；其他第三方组件见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。源码公开不代表模型、数字人 rootfs 或默认媒体素材可以自由再分发。
