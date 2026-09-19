@@ -1,0 +1,51 @@
+# Machine-local installation state
+.installed.json
+.playwright-mcp/
+CLAUDE.md
+
+# Bundled runtimes, models and WSL image (about 15 GB; distributed separately)
+runtime/
+AI-Girlfriend-Models/
+engine/
+app/.venv/
+app/.venv-omni-overlay/
+
+# User data, credentials, memory and generated media
+app/heygem-data/
+app/dsh-bridge/config.json
+app/dsh-bridge/session.json
+app/dsh-bridge/dsh-home/
+app/logs/
+app/output/
+app/voices/*/
+app/voices/.active
+!app/voices/README.md
+
+# Generated/cache files
+**/__pycache__/
+*.py[cod]
+*.orig
+*.tmp
+*.log
+.pytest_cache/
+*.egg-info/
+
+# Large media and model formats must never enter Git history
+*.ckpt
+*.gguf
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.tar
+*.tar.gz
+*.wav
+*.mp3
+*.mp4
+*.webm
+*.zip
+*.7z
+
+# Documentation assets explicitly reviewed for publication
+!docs/assets/*.png
+!docs/assets/*.gif

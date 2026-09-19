@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AI GIRLFRIEND</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<!-- 胶片颗粒：整层覆盖，给纯色暗场一点呼吸感 -->
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<header class="masthead">
+  <div class="mark">
+    <span class="mark-glyph" aria-hidden="true"></span>
+    <span class="mark-text">
+      <b>AI GIRLFRIEND</b>
+    </span>
+  </div>
+  <div class="masthead-right">
+    <span class="presence" id="presenceState" data-tone="listen">
+      <i aria-hidden="true"></i><span>连接中</span>
+    </span>
+    <button class="ghost-button" id="settingsButton" type="button" aria-label="设置">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.6v2.1M12 18.3v2.1M3.6 12h2.1M18.3 12h2.1M6.1 6.1l1.5 1.5M16.4 16.4l1.5 1.5M17.9 6.1l-1.5 1.5M7.6 16.4l-1.5 1.5"/></svg>
+      <span>设置</span>
+    </button>
+  </div>
+</header>
+
+<main class="theatre">
+  <!-- 左：文字。刻意留白，像书页而不是聊天窗 -->
+  <section class="script" aria-label="对话">
+    <p class="turn-label" id="turnLabel" hidden></p>
+
+    <div class="reply" id="assistantReplies" aria-live="polite">
+      <p class="reply-text" id="assistantText"></p>
+    </div>
+
+    <!-- 好感度：聊得越多、处得越久，她越亲近 -->
+    <section class="bond" id="bond" hidden>
+      <div class="bond-head">
+        <span class="bond-eyebrow">AFFINITY</span>
+        <b class="bond-level" id="bondLevel">初识</b>
+      </div>
+      <div class="bond-track" id="bondTrack" role="progressbar"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="好感度">
+        <i class="bond-fill" id="bondFill"></i>
+        <span class="bond-notches" id="bondNotches" aria-hidden="true"></span>
+      </div>
+      <p class="bond-meta" id="bondMeta"></p>
+    </section>
+
+    <div class="modes">
+      <button class="mode" id="lipsyncToggle" type="button" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M9.6 9.6v4.8l4.8-2.4z"/></svg>
+        <span class="mode-text">
+          <b>数字人</b>
+          <i>生成口型画面</i>
+        </span>
+        <span class="mode-switch" aria-hidden="true"><i></i></span>
+      </button>
+      <button class="mode" id="handsFreeToggle" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0"/><rect x="2.5" y="12" width="4" height="7" rx="2"/><rect x="17.5" y="12" width="4" height="7" rx="2"/></svg>
+        <span class="mode-text">
+          <b>免提</b>
+          <i>麦克风常开</i>
+        </span>
+        <span class="mode-switch" aria-hidden="true"><i></i></span>
+      </button>
+    </div>
+
+    <div class="log" id="history">
+      <button class="log-toggle" id="historyToggle" type="button">
+        <span>对话记录</span>
+        <b id="historyCount">0</b>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="log-list" id="historyList" aria-live="polite"></div>
+    </div>
+
+    <form class="composer" id="composer">
+      <div class="composer-line">
+        <input id="messageInput" type="text" autocomplete="off" placeholder="说点什么……" />
+        <button class="send" type="submit" aria-label="发送">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12h13M12 5.5l6 6.5-6 6.5"/></svg>
+        </button>
+      </div>
+      <p class="composer-hint" id="composerHint">Enter 发送 · Shift+Enter 换行</p>
+    </form>
+
+  </section>
+
+  <!-- 右：影像。出血到画面边缘 -->
+  <section class="stage" aria-label="影像">
+    <div class="stage-frame">
+      <video id="avatarVideo" class="film idle" playsinline muted loop preload="auto"></video>
+      <video id="resultVideo" class="film reply" playsinline preload="auto"></video>
+
+      <div class="stage-empty" id="avatarPlaceholder" hidden>
+        <span class="stage-empty-mark" aria-hidden="true"></span>
+        <h3 id="placeholderTitle">还没有角色影像</h3>
+        <p id="placeholderCopy">上传一段五到十五秒的正脸视频</p>
+        <button id="placeholderButton" type="button" data-open-upload>选择视频</button>
+      </div>
+
+      <div class="stage-scrim" aria-hidden="true"></div>
+
+      <button class="replay hidden" id="replayButton" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4.5V10h5.5"/></svg>
+        <span>重播</span>
+      </button>
+    </div>
+  </section>
+</main>
+
+<!-- 设置：整幅右侧抽屉 -->
+<div class="drawer-scrim" id="settingsScrim" hidden></div>
+<aside class="drawer" id="settingsPanel" aria-hidden="true">
+  <header class="drawer-head">
+    <div>
+      <span class="eyebrow">SETTINGS</span>
+      <h2>设置</h2>
+    </div>
+    <button class="ghost-button round" id="settingsClose" type="button" aria-label="关闭">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+
+  <div class="drawer-body">
+
+    <!-- 角色影像 -->
+    <section class="block">
+      <div class="block-head">
+        <h3>角色影像</h3>
+        <span class="block-meta" id="avatarName">未设置</span>
+      </div>
+      <p class="block-note">对话时用它生成口型。建议五到十五秒、正脸、少遮挡、光线明亮。</p>
+      <label class="drop" for="avatarInput">
+        <input id="avatarInput" type="file" accept="video/mp4,video/quicktime,video/webm" hidden />
+        <span class="drop-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M7.5 8.5L12 4l4.5 4.5M4 16v3.5h16V16"/></svg>
+        </span>
+        <b>替换角色影像</b>
+        <span class="drop-progress"><i id="uploadProgress"></i></span>
+      </label>
+    </section>
+
+    <!-- 待机影像 -->
+    <section class="block">
+      <div class="block-head">
+        <h3>待机影像</h3>
+        <span class="block-meta" id="idleVideoName">未设置</span>
+      </div>
+      <p class="block-note">她不说话时循环播放。挑一段嘴部安静的，切换才不突兀。</p>
+      <label class="drop compact" for="idleVideoInput">
+        <input id="idleVideoInput" type="file" accept="video/mp4,video/quicktime,video/webm" hidden />
+        <span class="drop-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4M7.5 8.5L12 4l4.5 4.5M4 16v3.5h16V16"/></svg>
+        </span>
+        <b>替换待机影像</b>
+        <span class="drop-progress"><i id="idleUploadProgress"></i></span>
+      </label>
+    </section>
+
+    <!-- 声音 -->
+    <section class="block">
+      <div class="block-head">
+        <h3>声音</h3>
+        <span class="block-meta" id="voiceStatus">未设置</span>
+      </div>
+      <p class="block-note">她的声音是从一段参考录音克隆的。传一段你想要的嗓音，三到十秒、一句完整的话、没有背景音。</p>
+
+      <div class="voice-list" id="voiceList"></div>
+
+      <button class="dashed-button" id="addVoice" type="button">＋ 添加音色</button>
+
+      <form class="voice-editor" id="voiceEditor" hidden>
+        <label class="field">
+          <span>音色名</span>
+          <input id="voiceName" type="text" autocomplete="off" maxlength="40" placeholder="例如 我的声音" />
+        </label>
+        <label class="drop compact" for="voiceFile">
+          <input id="voiceFile" type="file" accept="audio/*" hidden />
+          <span class="drop-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 16V4M7.5 8.5L12 4l4.5 4.5M4 16v3.5h16V16"/></svg>
+          </span>
+          <b id="voiceFileLabel">选择参考音频</b>
+        </label>
+        <label class="field">
+          <span>这段录音里说的原话</span>
+          <textarea id="voiceRefText" rows="3" maxlength="400" spellcheck="false"
+            placeholder="必须和录音逐字一致，标点也要对上——对不上克隆出来就不像"></textarea>
+        </label>
+        <div class="editor-foot">
+          <span class="spacer"></span>
+          <button class="quiet-button" id="cancelVoice" type="button">取消</button>
+          <button class="solid-button" id="saveVoice" type="button">上传并启用</button>
+        </div>
+        <span class="drop-progress"><i id="voiceProgress"></i></span>
+      </form>
+    </section>
+
+    <!-- 人格 -->
+    <section class="block">
+      <div class="block-head">
+        <h3>人格</h3>
+        <span class="block-meta" id="systemPromptStatus">已同步</span>
+      </div>
+      <p class="block-note">她是谁、怎么说话。保存后下一句生效。</p>
+      <textarea id="systemPromptInput" rows="8" spellcheck="false"
+        placeholder="你是……&#10;说话风格：……&#10;不要使用 Markdown、列表或表情符号。"></textarea>
+      <div class="block-foot">
+        <span class="counter" id="systemPromptCount">0 字</span>
+        <button class="solid-button" id="saveSystemPrompt" type="button">保存人格</button>
+      </div>
+    </section>
+
+    <!-- 语言模型：多提供方 -->
+    <section class="block">
+      <div class="block-head">
+        <h3>语言模型</h3>
+        <span class="block-meta" id="llmProviderStatus">未配置</span>
+      </div>
+      <p class="block-note">填入提供方的 API 密钥即可使用其模型。对话内容会发送到所选服务。</p>
+
+      <div class="provider-list" id="providerList"></div>
+
+      <div class="provider-add">
+        <button class="dashed-button" id="addProvider" type="button">＋ 添加提供方</button>
+        <button class="dashed-button" id="addCustomProvider" type="button">＋ 自定义提供方</button>
+      </div>
+
+      <!-- 编辑表单：点「编辑」或「添加」时展开 -->
+      <form class="provider-editor" id="providerEditor" hidden>
+        <label class="field" id="providerKindField">
+          <span>提供方</span>
+          <select id="providerKind">
+            <option value="deepseek">DeepSeek</option>
+            <option value="kimi">Kimi</option>
+            <option value="glm">智谱 GLM</option>
+            <option value="custom">自定义…</option>
+          </select>
+        </label>
+        <label class="field" id="providerLabelField">
+          <span>名称</span>
+          <input id="providerLabel" type="text" autocomplete="off" placeholder="例如 Kimi" />
+        </label>
+        <label class="field">
+          <span>Base URL</span>
+          <input id="llmBaseUrl" type="text" autocomplete="off" spellcheck="false"
+            placeholder="https://api.deepseek.com/v1" />
+        </label>
+        <label class="field">
+          <span>API Key</span>
+          <input id="llmApiKey" type="password" autocomplete="off" spellcheck="false"
+            placeholder="留空则保持不变" />
+        </label>
+        <label class="field">
+          <span>模型</span>
+          <select id="llmModelSelect"></select>
+          <input id="llmModel" type="text" autocomplete="off" spellcheck="false"
+            list="llmModelPresets" placeholder="模型 id" hidden />
+          <datalist id="llmModelPresets"></datalist>
+        </label>
+        <div class="editor-foot">
+          <button class="quiet-button" id="clearLlmApiKey" type="button">清除 Key</button>
+          <span class="spacer"></span>
+          <button class="quiet-button" id="cancelProvider" type="button">取消</button>
+          <button class="solid-button" id="saveLlmProvider" type="button">保存并启用</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="block" id="memoryPanel">
+      <div class="block-head"><h3>关于你的记忆</h3><button class="quiet-button" id="refreshMemory" type="button">刷新</button></div>
+      <p class="block-note">从你明确说过的话里整理，也可以亲自修改。删除仅移出长期记忆库，原聊天记录仍保留。</p>
+      <p class="block-note" id="memorySummary" role="status">正在读取</p>
+      <div id="memoryFacts"></div>
+      <form id="memoryForm">
+        <label class="field"><span>记忆名称</span><input id="memoryKey" maxlength="80" required placeholder="例如：称呼" /></label>
+        <label class="field"><span>内容</span><input id="memoryValue" maxlength="500" required placeholder="你希望她记住的事" /></label>
+        <div class="editor-foot"><button class="quiet-button" id="cancelMemoryEdit" type="button">清空</button><button class="solid-button" type="submit">保存记忆</button></div>
+      </form>
+      <form id="memorySearchForm">
+        <label class="field"><span>找回以前聊过的事</span><input id="memoryQuery" maxlength="500" required placeholder="例如：那次让我难过的事情" /></label>
+        <button class="quiet-button" type="submit">搜索历史</button>
+      </form>
+      <div id="memoryResults" aria-live="polite"></div>
+    </section>
+
+    <!-- 服务状态 -->
+    <section class="block">
+      <div class="block-head">
+        <h3>服务</h3>
+        <button class="quiet-button" id="refreshStatus" type="button">刷新</button>
+      </div>
+      <ul class="service-list">
+        <li><span id="llmServiceLabel">语言模型</span><b data-service-text="llm">检查中</b></li>
+        <li><span>语音</span><b data-service-text="realtime">检查中</b></li>
+        <li><span id="avatarDriverServiceLabel">口型</span><b data-service-text="avatar_driver">检查中</b></li>
+      </ul>
+    </section>
+
+  </div>
+</aside>
+
+<!-- 麦克风：浮在两栏之间的中轴上，不属于任何一栏 -->
+<div class="mic-dock" id="micDock">
+  <button class="mic" id="voiceButton" type="button" aria-label="按住说话">
+    <span class="mic-halo" aria-hidden="true"></span>
+    <span class="mic-ring" aria-hidden="true"></span>
+    <span class="mic-ring delay" aria-hidden="true"></span>
+    <span class="mic-arc" aria-hidden="true"></span>
+    <span class="mic-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
+  </button>
+  <span class="mic-label" id="voiceLabel">按住说话</span>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+<script src="memory-panel.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "AI-Girlfriend-OneClick",
+  "version": "2026.09.19",
+  "built_at": "2026-09-19T12:23:47",
+  "size_bytes": 15608142541,
+  "python": "3.11.9",
+  "pytorch": "2.11.0+cu130",
+  "bundled_models": [
+    "OmniVoice-0.2.1（声音克隆 TTS）",
+    "Whisper-large-v3-turbo（语音识别）",
+    "Silero-VAD-v5（断句）",
+    "Duix/HeyGem 256v1（数字人口型，在 engine/ 镜像里）"
+  ],
+  "language_model": "外部 API（GLM / Kimi / DeepSeek），经 DSH 桥接，带跨重启长期记忆",
+  "requires": [
+    "Windows 10/11 64 位",
+    "WSL2（数字人需要）",
+    "NVIDIA 显卡"
+  ]
+}

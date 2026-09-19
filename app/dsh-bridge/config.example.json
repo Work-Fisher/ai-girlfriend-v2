@@ -1,0 +1,9 @@
+{
+  "provider": "deepseek-official",
+  "model": "deepseek-v4-flash",
+  "base_url": "",
+  "api_key": "",
+  "profile": "sdk",
+  "max_tokens": null,
+  "request_timeout_seconds": 180
+}
