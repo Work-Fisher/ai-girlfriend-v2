@@ -9,16 +9,6 @@ GitHub 仓库只保存源码和文档，不包含约 10.6 GiB 的模型与数字
 
 这些运行资源与当前 CUDA / PyTorch 版本强绑定，仓库暂未提供可复现的从零构建脚本。拿到源码的普通用户应使用同版本、已经验证过的 Windows 整合包；开发者不要把通用 `pip install` 当作一键包的等价替代。
 
-## 原项目参考资料
-
-本项目的 Windows 整合方式部分参考了 `penposs` 作者公开分享的“开源赛博女友”方案。原作者的资料入口：
-
-- [AI 学习资料库 / 开源赛博女友](https://e5fklqa5fj.feishu.cn/wiki/ZPFIwAWzfiDilAkcHk0czuiRnhf)
-- [夸克网盘下载](https://pan.quark.cn/s/0add2d447f6c?pwd=56W8)，提取码 `56W8`
-- [penposs 的 GitHub](https://github.com/penposs)
-
-网盘内容由原作者维护，是本项目的上游参考资料，不是当前 GitHub 版本的二进制发行包。其版本和文件结构可能变化，不能直接假定与本仓库完全一致。
-
 ## 分别下载模型
 
 | 组件 | 官方地址 | 本项目使用版本 | 放置目录 | 本机占用 | 许可要点 |
@@ -61,9 +51,9 @@ git clone --depth 1 --branch v6.2.1 `
 engine/duix-rootfs.tar.gz    约 5.57 GiB（5.98 GB）
 ```
 
-它不是 Hugging Face 模型。数字人上游源码是 [duixcom/Duix-Avatar](https://github.com/duixcom/Duix-Avatar)，`penposs` 作者保留了 [HeyGem.ai 分支](https://github.com/penposs/HeyGem.ai)。当前本机已验证整合包中的 rootfs 大小约 5.57 GiB；原始数字人整合思路来源于上面的原作者公开资料。
+它不是 Hugging Face 模型。数字人上游源码是 [duixcom/Duix-Avatar](https://github.com/duixcom/Duix-Avatar)。当前本机已验证整合包中的 rootfs 大小约 5.57 GiB。
 
-GitHub 仓库不附带该镜像，也不主张上游网盘中的文件一定与当前版本相同或可以被任意二次分发。取得与本项目匹配的镜像后放到 `engine/`，再双击 `首次安装.cmd`；安装器会把它导入为 WSL2 发行版。
+GitHub 仓库不附带该镜像，也不主张其他渠道中的文件一定与当前版本相同或可以被任意二次分发。取得与本项目匹配的镜像后放到 `engine/`，再双击 `首次安装.cmd`；安装器会把它导入为 WSL2 发行版。
 
 只使用纯语音时，不需要下载这个 rootfs，也不需要安装 WSL2。
 
