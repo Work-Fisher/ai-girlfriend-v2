@@ -10,13 +10,15 @@
   还得占一份常驻内存。现在数字人引擎直接跑在 WSL2 发行版里，`wsl --import` 一条
   命令的事，不需要 Docker。
 
-  语音、大模型、口型全部是本地进程或外部 API，安装阶段不联网、不下载。
+  语音识别、语音合成和长期记忆模型已经在整合包内；语言模型走用户填写的外部
+  API。安装阶段不联网、不下载模型。
 #>
 [CmdletBinding()]
 param(
     [string]$DistroName = "DuixDistro",
     [string]$InstallRoot = "",
-    [switch]$Force
+    [switch]$Force,
+    [switch]$CheckOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -99,10 +101,23 @@ if ($bundleRoot -match '[^\x00-\x7F]' -or $bundleRoot -match '\s') {
 $required = @(
     @{ Path = (Join-Path $bundleRoot "runtime\python311\python.exe"); Name = "Python 运行时" },
     @{ Path = (Join-Path $bundleRoot "runtime\ffmpeg\ffmpeg.exe");    Name = "ffmpeg" },
-    @{ Path = (Join-Path $bundleRoot "app\.venv\Lib\site-packages");  Name = "依赖库" },
-    @{ Path = (Join-Path $bundleRoot "app\.venv-omni-overlay");       Name = "语音依赖层" },
-    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\tts\omnivoice"); Name = "语音模型" },
-    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\stt\whisper-large-v3-turbo"); Name = "识别模型" }
+    @{ Path = (Join-Path $bundleRoot "app\.venv\Lib\site-packages\torch\__init__.py"); Name = "PyTorch 运行库" },
+    @{ Path = (Join-Path $bundleRoot "app\.venv\Lib\site-packages\deepseek_harness_runtime\runtime\deepseek-harness-sdk-runtime-win-x64.exe"); Name = "DSH 运行组件" },
+    @{ Path = (Join-Path $bundleRoot "app\.venv-omni-overlay\omnivoice\__init__.py"); Name = "OmniVoice 依赖" },
+    @{ Path = (Join-Path $bundleRoot "app\.venv-omni-overlay\transformers\__init__.py"); Name = "OmniVoice Transformers" },
+    @{ Path = (Join-Path $bundleRoot "app\speech-to-speech\src\speech_to_speech\s2s_pipeline.py"); Name = "实时语音管线" },
+    @{ Path = (Join-Path $bundleRoot "app\ui\server.py"); Name = "浏览器界面" },
+    @{ Path = (Join-Path $bundleRoot "app\dsh-bridge\server.py"); Name = "长期记忆桥接" },
+    @{ Path = (Join-Path $bundleRoot "app\dsh-bridge\dsh-home\profiles\node_modules\companion-api\index.js"); Name = "长期记忆插件" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\tts\omnivoice\model.safetensors"); Name = "OmniVoice 主模型" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\tts\omnivoice\audio_tokenizer\model.safetensors"); Name = "OmniVoice 音频模型" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\stt\whisper-large-v3-turbo\model.safetensors"); Name = "Whisper 识别模型" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\memory\multilingual-e5-small\model.safetensors"); Name = "长期记忆检索模型" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\memory\multilingual-e5-small\tokenizer.json"); Name = "长期记忆分词器" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\vad\silero-vad\hubconf.py"); Name = "Silero VAD" },
+    @{ Path = (Join-Path $bundleRoot "AI-Girlfriend-Models\vad\silero-vad\src\silero_vad\data\silero_vad.jit"); Name = "Silero VAD 模型" },
+    @{ Path = (Join-Path $bundleRoot "app\voices\苏晚-单句\ref_audio.wav"); Name = "默认参考声音" },
+    @{ Path = (Join-Path $bundleRoot "app\voices\苏晚-单句\ref_text.txt"); Name = "默认声音文本" }
 )
 $missing = @($required | Where-Object { -not (Test-Path -LiteralPath $_.Path) })
 if ($missing.Count -gt 0) {
@@ -112,6 +127,11 @@ if ($missing.Count -gt 0) {
     )
 }
 Write-Host "  完整" -ForegroundColor Green
+if ($CheckOnly) {
+    Write-Host ""
+    Write-Host "整合包运行文件检查通过。" -ForegroundColor Green
+    exit 0
+}
 
 # ── 2. WSL2 ───────────────────────────────────────────────
 Write-Step "检查 WSL2"

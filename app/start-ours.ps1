@@ -5,14 +5,15 @@
   然后启动浏览器 UI。
 
 .DESCRIPTION
-  这套整合的三处替换：
+  当前整合包的四个组成部分：
 
-    语音合成   Qwen3-TTS（预设音色）        -> OmniVoice（参考音频克隆）
-    大语言模型 本地 Qwen3.5-9B（llama.cpp） -> DSH（外部模型 + 长期记忆）
-    数字人     Docker 跑 HeyGem 镜像        -> WSL 跑 Duix 发行版
+    语音识别   Whisper
+    语音合成   OmniVoice（参考音频克隆）
+    语言模型   外部 API，经 DSH 加入长期记忆
+    数字人     WSL2 中的 Duix 发行版
 
   UI、前端和语音管线通过配置及端口对接：
-    - llm-provider.json 指向 dsh-bridge，于是 start-ui.ps1 自动跳过 llama.cpp
+    - llm-provider.json 指向 dsh-bridge
     - pipeline 配置里 tts 改成 omnivoice，走我们新加的 handler
     - 数字人本来就是 HTTP 调 127.0.0.1:8383，WSL 里那个引擎接口完全一致
 
@@ -44,11 +45,11 @@ $s2sSrc = Join-Path $appRoot "speech-to-speech\src"
 $logDir = Join-Path $appRoot "logs"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 
-# OmniVoice 要 transformers 5.x，而本包环境是 4.x（Whisper 和 faster-qwen3-tts
-# 都钉在 4.x 上）。以前的办法是另装一整套解释器——代价是第二份 4.2G 的 torch。
+# OmniVoice 要 transformers 5.x，而 Whisper 所在的主环境是 4.x。以前的办法是
+# 另装一整套解释器——代价是第二份 4.2G 的 torch。
 #
 # 现在换成 overlay：只把真正冲突的那些**纯 Python** 包（transformers 5.x、
-# huggingface_hub、omnivoice 本体等 25 个，合计 221MB）放一个目录，启动时塞进
+# huggingface_hub、omnivoice 本体等纯 Python 包）放一个目录，启动时塞进
 # PYTHONPATH 最前面，torch / numpy / scipy 这些大件复用主 venv。省 5.4G，
 # 而且两边 torch 本来就是同一个版本，没有折损。
 #

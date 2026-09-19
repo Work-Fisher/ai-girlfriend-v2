@@ -8,6 +8,7 @@
   "bundled_models": [
     "OmniVoice-0.2.1（声音克隆 TTS）",
     "Whisper-large-v3-turbo（语音识别）",
+    "multilingual-e5-small（长期记忆语义检索）",
     "Silero-VAD-v6.2.1（断句）",
     "Duix/HeyGem 256v1（数字人口型，在 engine/ 镜像里）"
   ],

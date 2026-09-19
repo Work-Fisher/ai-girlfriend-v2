@@ -959,7 +959,7 @@ def get_tts_handler(
         )
     elif module_kwargs.tts == "omnivoice":
         # OmniVoice 声音克隆。模型不在本进程，跑在旁挂服务里（app/omnivoice/server.py）——
-        # 它要 transformers 5.x，而本环境是 4.x，Whisper 和 faster-qwen3-tts 都钉在 4.x。
+        # 它要 transformers 5.x，而 Whisper 所在的主环境是 4.x。
         # 参数走环境变量而不是新加一个 dataclass：那个 dataclass 要在十来处签名里串一遍，
         # 对一个只有四个可调项的 handler 不划算，也更容易在上游更新时冲突。
         import os as _os
