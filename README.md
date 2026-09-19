@@ -79,6 +79,14 @@ flowchart LR
 
 这些是可重复测试的合成案例，不包含真实用户聊天。详细结果与边界见 [案例说明](docs/CASES.md)。
 
+### 数字人实际输出视频
+
+https://github.com/user-attachments/assets/734d01f7-ef1d-4a2d-b947-1e54ba1db3e9
+
+▶ [播放器无法显示时，打开仓库内 MP4（8.32 秒，1280×720，含声音）](docs/assets/digital-human-demo.mp4)
+
+这段视频由本项目的 OmniVoice 声音克隆与 Duix/HeyGem 口型管线实际生成。角色和台词均为公开演示用虚构内容，不包含用户聊天记录。
+
 <table>
   <tr>
     <td width="64%"><img src="docs/assets/hero-interface.png" alt="主界面演示"></td>
