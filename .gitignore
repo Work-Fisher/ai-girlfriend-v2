@@ -49,3 +49,4 @@ app/voices/.active
 # Documentation assets explicitly reviewed for publication
 !docs/assets/*.png
 !docs/assets/*.gif
+!docs/assets/digital-human-demo.mp4
